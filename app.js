@@ -1,4 +1,3 @@
-const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
 
@@ -15,7 +14,11 @@ const globalError = require('./controllers/errors/error');
 //// 3rd Party middleware
 if (process.env.NODE_ENV == 'development') {
   app.use(morgan('dev')); //Used to log request in terminal eg Get, Post and url used and time it took
+  console.log('DEVELOPMENT MODE');
+} else if (process.env.NODE_ENV == 'production') {
+  console.log('PRODUCTION MODE');
 }
+
 app.use(express.json()); //Acts as middleware to help access the req property in POST request
 /////////My own middleware
 app.use((req, res, next) => {
