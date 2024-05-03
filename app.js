@@ -7,6 +7,10 @@ const app = express();
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 
+//Errors
+const AppError = require('./utils/appError');
+const globalError = require('./controllers/errors/error');
+
 /////////////////////////////////////////////Middleware /////////////////////////
 //// 3rd Party middleware
 if (process.env.NODE_ENV == 'development') {
@@ -32,20 +36,16 @@ app.all('*', (req, res, next) => {
   //   });
 
   // final way after using error handling middleware
-  const err = new Error(`The route ${req.originalUrl} cannot be found.`);
-  err.status = 'Fail';
-  err.statusCode = 404;
+  //   const err = new Error(`The route ${req.originalUrl} cannot be found.`);
+  //   err.status = 'Fail';
+  //   err.statusCode = 404;
 
-  next(err); //Node will auto know that the error middleware should be called when you specify the err inside the next()
+  //Now after using the utils AppError
+
+  next(new AppError(`The route ${req.originalUrl} cannot be found.`, 404)); //Node will auto know that the error middleware should be called when you specify the err inside the next()
 });
 
 /////   Implementing the ERROR Handling Middleware
-app.use((err, req, res, next) => {
-  //console.log(err.stack); //Help know where the error occured
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalError);
 
 module.exports = app;
