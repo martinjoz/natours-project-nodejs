@@ -23,13 +23,29 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-//Handle routes not defined using middleware
+//Handle routes not defined using middleware. Use it after the routes
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `The route ${req.originalUrl} cannot be found.`,
+  //Initial way before using error handling middleware
+  //   res.status(404).json({
+  //     status: 'fail',
+  //     message: `The route ${req.originalUrl} cannot be found.`,
+  //   });
+
+  // final way after using error handling middleware
+  const err = new Error(`The route ${req.originalUrl} cannot be found.`);
+  err.status = 'Fail';
+  err.statusCode = 404;
+
+  next(err); //Node will auto know that the error middleware should be called when you specify the err inside the next()
+});
+
+/////   Implementing the ERROR Handling Middleware
+app.use((err, req, res, next) => {
+  //console.log(err.stack); //Help know where the error occured
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
   });
 });
 
-////////////////// Start Server
 module.exports = app;
