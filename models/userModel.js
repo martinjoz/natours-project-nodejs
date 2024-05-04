@@ -25,10 +25,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please Enter your Password'],
     minLength: [4, 'Password should have atleast four character'],
+    select: false, // so that the passowrd s never returned in any response
   },
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
+    select: false, // so that the passowrd s never returned in any response
     validate: {
       validator: function (val) {
         return val === this.password;
@@ -50,6 +52,14 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
+
+//Method to check if password is correct. This will be available in all the user documents
+userSchema.methods.isPasswordValid = async function (
+  testPassword,
+  originalPassword,
+) {
+  return await bcrypt.compare(testPassword, originalPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 

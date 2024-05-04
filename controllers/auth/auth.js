@@ -1,6 +1,7 @@
 const User = require('./../../models/userModel');
 const catchAsync = require('./../../utils/catchAsync');
 const jwt = require('jsonwebtoken');
+const AppError = require('./../../utils/appError');
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -23,3 +24,32 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
   next();
 });
+
+exports.login = async (req, res, next) => {
+  //Get entered email and password using destructuring
+  const { email, password } = req.body;
+
+  //Check if they exists in the input fields
+  if (!email || !password) {
+    return next(new AppError('Please enter all fields.', 400));
+  }
+
+  //check if the user exists in the db and if the credentials are correct
+  //Get the user email and psw from the db
+  const user = await User.findOne({ email }).select('+password'); //Since psw cannot be return using findOne thus use the select and +
+  //Use the isPasswordValid from the usermodel to check psw authenticity
+  if (!user || !(await user.isPasswordValid(password, user.password))) {
+    return next(new AppError('Wrong email or password'));
+  }
+
+  //Authorize the user and issue jwt token
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'login successfully',
+    token,
+  });
+};
