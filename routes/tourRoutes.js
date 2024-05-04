@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('./../controllers/auth/auth');
 
 const tourController = require('./../controllers/tourController');
 
@@ -10,7 +11,7 @@ router.param('id', (req, res, next, val) => {
 
 router
   .route('/') //This will be treated as /api/v1/tours
-  .get(tourController.getTours)
+  .get(auth.protect, tourController.getTours)
   .post(tourController.createTour);
 
 router

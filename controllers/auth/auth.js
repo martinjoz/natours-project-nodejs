@@ -53,3 +53,19 @@ exports.login = async (req, res, next) => {
     token,
   });
 };
+
+exports.protect = async (req, res, next) => {
+  //this will be used to protected routes
+
+  //Get token in the header
+  let token;
+  if (req.headers && req.headers.authorization.startswith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+  if (!token) {
+    return next(new AppError('Please Login to continue', 401));
+  }
+  //if(req.headers && req)
+
+  next();
+};
