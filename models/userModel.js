@@ -1,5 +1,6 @@
-const mongoose = required('mongoose');
-const validator = required('validator');
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -28,7 +29,26 @@ const userSchema = new mongoose.Schema({
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
+    validate: {
+      validator: function (val) {
+        return val === this.password;
+      },
+      message: 'Passwords entered should match.',
+    },
   },
+});
+
+userSchema.pre('save', async function (next) {
+  //check if the password field is modified
+  if (!this.isModified('password')) return next();
+
+  //Hash the password
+  this.password = await bcrypt.hash(this.password, 12);
+
+  //Delete password confirm
+  this.passwordConfirm = undefined;
+
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
