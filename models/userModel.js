@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords entered should match.',
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -59,6 +60,21 @@ userSchema.methods.isPasswordValid = async function (
   originalPassword,
 ) {
   return await bcrypt.compare(testPassword, originalPassword);
+};
+
+//Method to check if the user changed their password so that it can help issue new token or log them out
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10,
+    );
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  // False means NOT changed
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
