@@ -111,3 +111,19 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+
+exports.forgetPassword = catchAsync(async (req, res, next) => {
+  //Get user email and check if it exists
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(
+      new AppError('There is no such user with that email address', 404),
+    );
+  }
+
+  //Generate the random reset token
+  const resetToken = user.createPasswordResetToken(); //from the userModel
+  await user.save({ validateBeforeSave: false }); //this helps to save things like resetExpires drom the prev line
+});
+
+exports.resetPassword = (req, res, next) => {};

@@ -6,6 +6,8 @@ const auth = require('./../controllers/auth/auth');
 //Auth routes
 router.post('/signup', auth.signup);
 router.post('/login', auth.login);
+router.post('/forgotPassword', auth.forgetPassword);
+router.post('/resetPassword', auth.resetPassword);
 
 // //Controller for Users
 // const getUsers = (req, res) => {
