@@ -18,6 +18,10 @@ router
   .route('/:id') //This will be treated as /api/v1/tours/:id
   .get(tourController.getTour)
   .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    auth.protect,
+    auth.restrictTo('admin', 'lead-guide'),
+    tourController.deleteTour,
+  );
 
 module.exports = router;
