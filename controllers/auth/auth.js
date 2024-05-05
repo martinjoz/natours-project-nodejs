@@ -100,9 +100,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 exports.restrictTo = (...roles) => {
+  //Use the spread operator to take the incoming roles parameters as arrays. eg from the delete tour roled we have roles as 'admin','lead-guide'
   return (req, res, next) => {
-    //Use the spread operator to take the incoming roles parameters as arrays
-    if (!roles.includes(req.body.roles)) {
+    if (!roles.includes(req.user.role)) {
+      // the req.user.role comes from the protect middlware in authjs where b4 we call next() we set the user to req.user=currentUser
       return next(
         new AppError('You do not have permission to perform this action', 403),
       );
