@@ -1,8 +1,8 @@
-const User = require('./../../models/userModel');
 const { promisify } = require('util');
 const catchAsync = require('./../../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const AppError = require('./../../utils/appError');
+const User = require('./../../models/userModel');
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -10,12 +10,16 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role,
   });
 
   //creating a jwt token
   const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
+
+  // Omit password field from user object
+  newUser.password = undefined;
 
   res.status(201).json({
     status: 'success',
@@ -60,7 +64,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   //Get token in the header
   let token;
-  if (req.headers && req.headers.authorization.startsWith('Bearer')) {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
     token = req.headers.authorization.split(' ')[1];
   }
   if (!token) {
