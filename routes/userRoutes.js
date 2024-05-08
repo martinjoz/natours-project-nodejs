@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
 const auth = require('./../controllers/auth/auth');
+const userController = require('./../controllers/userController');
 
 //Auth routes
 router.post('/signup', auth.signup);
@@ -9,6 +9,9 @@ router.post('/login', auth.login);
 router.post('/forgotPassword', auth.forgetPassword);
 router.patch('/resetPassword/:token', auth.resetPassword);
 router.patch('/updatePassword', auth.protect, auth.updatePassword);
+
+//Routes for updating current user eg like their profile
+router.patch('/updateProfile', auth.protect, userController.updateMyProfile);
 
 // //Controller for Users
 // const getUsers = (req, res) => {
