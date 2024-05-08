@@ -8,6 +8,7 @@ router.post('/signup', auth.signup);
 router.post('/login', auth.login);
 router.post('/forgotPassword', auth.forgetPassword);
 router.patch('/resetPassword/:token', auth.resetPassword);
+router.patch('/updatePassword', auth.protect, auth.updatePassword);
 
 // //Controller for Users
 // const getUsers = (req, res) => {

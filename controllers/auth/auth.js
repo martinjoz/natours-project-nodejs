@@ -101,6 +101,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+//Roles
 exports.restrictTo = (...roles) => {
   //Use the spread operator to take the incoming roles parameters as arrays. eg from the delete tour roled we have roles as 'admin','lead-guide'
   return (req, res, next) => {
@@ -180,7 +181,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
- 
+
   await user.save();
 
   //Log in the user using JWT
@@ -195,6 +196,28 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updatePassword=(req,res,next)=>{
-  
-}
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //Get user from collection
+  const user = await User.findById(req.user.id).select('+password');
+
+  //Check if current password is correct
+  if (!(await user.isPasswordValid(req.body.passwordConfirm, user.password))) {
+    return next(new AppError('Your Current Password is Wrong', 401));
+  }
+
+  //Update Password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save(); //findByIdAndUpdate wont work since validators wont be run
+
+  //Login user and send Jwt
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Password Changed successfully',
+    token,
+  });
+});
