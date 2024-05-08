@@ -51,6 +51,25 @@ exports.updateMyProfile = catchAsync(async (req, res, next) => {
   });
 });
 
+//Delete my profile
+exports.deleteProfile = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(204).json({
+    status: 'Success',
+    //data: null,
+  });
+});
+
+//Controller to handle user crud eg done by the admin and not the use himself
+exports.getUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    status: 'success',
+    Count: users.length,
+    data: users,
+  });
+});
+
 // router
 //   .route('/') //This will be treated as /api/v1/users
 //   .get(userController.getUsers)

@@ -12,6 +12,13 @@ router.patch('/updatePassword', auth.protect, auth.updatePassword);
 
 //Routes for updating current user eg like their profile
 router.patch('/updateProfile', auth.protect, userController.updateMyProfile);
+router.delete('/deleteProfile', auth.protect, userController.deleteProfile);
+
+// Routes to handle cruds for users done by people like admin
+router
+  .route('/') //This will be treated as /api/v1/users
+  .get(userController.getUsers);
+//.post(createUser);
 
 // //Controller for Users
 // const getUsers = (req, res) => {
@@ -29,10 +36,6 @@ router.patch('/updateProfile', auth.protect, userController.updateMyProfile);
 // const deleteUser = (req, res) => {
 //     res.status(500).json({ status: 'error', message: 'Route undefined' })
 // }
-
-// router.route('/') //This will be treated as /api/v1/users
-//     .get(getUsers)
-//     .post(createUser);
 
 // router.route('/:id')
 //     .get(getUser)

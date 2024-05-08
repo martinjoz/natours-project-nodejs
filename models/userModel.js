@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -66,6 +71,13 @@ userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+//method to retreive active users
+userSchema.pre(/^find/, function (next) {
+  // the regex(/^find/) helps Apply to all querries starting with find
+  this.find({ active: { $ne: false } });
   next();
 });
 
