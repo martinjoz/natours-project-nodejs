@@ -1,6 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp'); //Helps prevent parameter polution especially when there is sorting and filtering in url params.
 
 const app = express();
 
@@ -10,6 +14,10 @@ const userRouter = require('./routes/userRoutes');
 //Errors
 const AppError = require('./utils/appError');
 const globalError = require('./controllers/errors/error');
+
+/////////////////////////////////////////////Middleware for setting HTTP security headers using helmet. Should be at the top /////////////////////////
+app.use(helmet);
+/////////////////// end rate limiter /////////////////////////
 
 /////////////////////////////////////////////Middleware /////////////////////////
 //// 3rd Party middleware
@@ -31,7 +39,18 @@ app.use('/api', limiter);
 
 /////////////////// end rate limiter /////////////////////////
 
-app.use(express.json()); //Acts as middleware to help access the req property in POST request
+app.use(express.json()); //Acts as middleware to help access the req property in POST request. After this we sanitize the data
+
+// Data sanitization
+//After implementing  app.use(express.json()); from just the prev code do the below
+//Data sanitization against NoSql injections in the req.body data
+app.use(mongoSanitize());
+//Sanitization against xss (cross site scripting)
+app.use(xss());
+
+// Preventing Parameter Pollution
+app.use(hpp()); // //Helps prevent parameter polution especially when there is sorting and filtering in url params. You need to use whtelist in it for the params
+
 /////////My own middleware
 app.use((req, res, next) => {
   console.log('Hello from middleware');
