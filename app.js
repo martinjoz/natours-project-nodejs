@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -18,6 +19,17 @@ if (process.env.NODE_ENV == 'development') {
 } else if (process.env.NODE_ENV == 'production') {
   console.log('PRODUCTION MODE');
 }
+
+/////////////////////////////////////////////Middleware for Rate Limiting /////////////////////////
+// Limit requests from same API
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000, //After requests are exhausted then user wait for 1 hour to continue making the requests
+  message: 'Too many requests from this IP, please try again in an hour!',
+});
+app.use('/api', limiter);
+
+/////////////////// end rate limiter /////////////////////////
 
 app.use(express.json()); //Acts as middleware to help access the req property in POST request
 /////////My own middleware
