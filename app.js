@@ -16,7 +16,7 @@ const AppError = require('./utils/appError');
 const globalError = require('./controllers/errors/error');
 
 /////////////////////////////////////////////Middleware for setting HTTP security headers using helmet. Should be at the top /////////////////////////
-app.use(helmet);
+app.use(helmet());
 /////////////////// end rate limiter /////////////////////////
 
 /////////////////////////////////////////////Middleware /////////////////////////
